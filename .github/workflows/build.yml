@@ -13,6 +13,10 @@ on:
     types: [published]
   workflow_dispatch:
 
+# Read-only token by default; only the publish job writes (the release)
+permissions:
+  contents: read
+
 jobs:
   windows:
     name: 'Windows'
@@ -35,7 +39,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
 
 # TODO: add support of 141_xp toolchain at VS2022+
 #      - name: Install v140, v141 and v142 toolsets
@@ -388,6 +392,8 @@ jobs:
     name: 'Publish'
     runs-on: ubuntu-24.04
     needs: [windows, testdemos, linux]
+    permissions:
+      contents: write
 
     steps:
       - name: Deploying linux artifacts
@@ -475,7 +481,7 @@ jobs:
             *.asc
 
       - name: Release artifacts
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         id: publish-job
         if: |
           startsWith(github.ref, 'refs/tags/') &&
